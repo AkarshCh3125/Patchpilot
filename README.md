@@ -1,4 +1,4 @@
-# 🛡️ PR-Sentinel: Autonomous Incident Triage & Developer Workflow Engine
+# 🛡️ PatchPilot: Autonomous Incident Triage & Developer Workflow Engine
 
 [![Agentware Track 5](https://img.shields.io/badge/Agentware%20Hackathon-Track%205%3A%20Developer%20Workflow-blue.svg)](#)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg)](#)
@@ -12,7 +12,7 @@
 
 ## 🧭 Architecture & Core Features
 
-PR-Sentinel replaces brittle automated scripts and manual triage by executing failed builds through a strictly governed **4-Phase Incident Response Lifecycle**:
+PatchPilot replaces brittle automated scripts and manual triage by executing failed builds through a strictly governed **4-Phase Incident Response Lifecycle**:
 
 ```
  ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
@@ -31,7 +31,7 @@ PR-Sentinel replaces brittle automated scripts and manual triage by executing fa
 - **[PHASE 4] PR Generation & Human Sign-off**: Produces review-ready PR diffs and generates an exhaustive `EXECUTION_REPORT.md` audit artifact once tests pass with zero side-effects.
 
 ### 2. Multi-Layer Enterprise Safety & Guardrails
-- **Multi-Turn Regression Rollback (`git checkout -- .`)**: If an applied patch breaks previously passing tests, PR-Sentinel automatically rolls back working directory changes, discards the bad diff, and prompts Gemini for an alternative strategy.
+- **Multi-Turn Regression Rollback (`git checkout -- .`)**: If an applied patch breaks previously passing tests, PatchPilot automatically rolls back working directory changes, discards the bad diff, and prompts Gemini for an alternative strategy.
 - **Circuit Breakers**: Limits regression retry attempts (max 3) and execution steps (max 15) to prevent runaway agent loops.
 - **Path Traversal Protection**: Guardrail validates all file access strictly within the workspace root (`_validate_path`).
 - **Protected & Sensitive Files Enforcer**: Strictly prevents writing to `.env`, `.git`, lockfiles, or critical runtime entrypoints without approval.
@@ -47,7 +47,7 @@ PR-Sentinel replaces brittle automated scripts and manual triage by executing fa
 ### Step 1: Clone Repository & Install Dependencies
 ```bash
 git clone <repo-url>
-cd PR-SENTINEL
+cd Patchpilot
 python -m venv .venv
 
 # On Windows:
@@ -95,7 +95,7 @@ GEMINI_MODEL=gemini-3.8-flash
 
 ## 🧪 Judge Evaluation Sandbox (`judge_samples/`)
 
-PR-Sentinel includes a pre-configured evaluation suite in the `judge_samples/` directory with 4 isolated scenarios to test every feature of the agent.
+PatchPilot includes a pre-configured evaluation suite in the `judge_samples/` directory with 4 isolated scenarios to test every feature of the agent.
 
 > 📖 **Judge Companion Guide**: See [`judge_samples/JUDGE_GUIDE.txt`](./judge_samples/JUDGE_GUIDE.txt) for detailed instructions, expected terminal outputs, and dashboard verification steps.
 
@@ -142,7 +142,7 @@ cd judge_samples/04_hitl_escalation && git checkout -- . && cd ../..
 
 ## 📊 Post-Execution Audit Artifact (`EXECUTION_REPORT.md`)
 
-After every run, PR-Sentinel generates a complete Markdown report ([EXECUTION_REPORT.md](./EXECUTION_REPORT.md)) containing:
+After every run, PatchPilot generates a complete Markdown report ([EXECUTION_REPORT.md](./EXECUTION_REPORT.md)) containing:
 1. **Executive Summary**: Resolution status, target repository, steps taken, and runtime duration.
 2. **Safety & Guardrail Compliance Matrix**: Audit verification of path traversal protection, sensitive file policies, regression rollbacks, circuit breakers, and emergency controls.
 3. **Chronological Audit Timeline**: Step-by-step table of agent reasoning, tool invocations, and tool outputs sourced directly from `audit_trail.jsonl`.
@@ -153,7 +153,7 @@ After every run, PR-Sentinel generates a complete Markdown report ([EXECUTION_RE
 ## 📁 Repository Structure
 
 ```
-PR-SENTINEL/
+Patchpilot/
 ├── agent.py                  # Core Autonomous Incident Triage Agent loop & Phase Controller
 ├── dashboard.py              # Streamlit Live Operations & Human Sign-off Console
 ├── tools.py                  # Polyglot test runners, security review, path traversal & git tools
