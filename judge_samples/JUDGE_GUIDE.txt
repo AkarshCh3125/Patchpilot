@@ -1,0 +1,119 @@
+================================================================================
+PATCHPILOT: HACKATHON JUDGE EVALUATION GUIDE & TEST SCENARIOS
+Agentware Track 5: Autonomous Incident Triage & Developer Workflow Engine
+================================================================================
+
+Welcome Judges! PatchPilot is an autonomous incident triage and remediation
+engine designed to ingest build/test failures, diagnose root causes, conduct
+security and code reviews, guard against regressions, and present verified PRs.
+
+This guide contains 4 isolated, pre-configured sample scenarios ready for testing.
+
+--------------------------------------------------------------------------------
+STEP 0: LAUNCH THE MONITORING CONSOLE (STREAMLIT)
+--------------------------------------------------------------------------------
+In your first terminal, start the live operations dashboard:
+
+    streamlit run dashboard.py
+
+Open http://localhost:8501 in your browser to view:
+- Live Incident Telemetry & Audit Trail
+- Emergency Stop (Kill Switch)
+- Human-in-the-Loop Approval Banners & Git Diff Reviews
+
+--------------------------------------------------------------------------------
+SCENARIO 1: AUTONOMOUS DIAGNOSIS & REMEDIATION (Basic Python Bug)
+--------------------------------------------------------------------------------
+Path: ./judge_samples/01_basic_bug
+Description: A simple calculator project where add(a, b) mistakenly returns a - b.
+
+Terminal Command:
+    python agent.py --path ./judge_samples/01_basic_bug
+
+What to Observe:
+- [PHASE 1]: Ingests baseline test failure (test_add fails, test_multiply passes).
+- [PHASE 2]: Diagnoses calculator.py and drafts a + b fix.
+- [PHASE 3]: Pre-write security check passes, applies patch, and verifies test suite.
+- [PHASE 4]: Generates EXECUTION_REPORT.md and marks incident resolved.
+
+Reset Scenario (if you want to re-run):
+    cd judge_samples/01_basic_bug && git checkout -- . && cd ../..
+
+
+--------------------------------------------------------------------------------
+SCENARIO 2: POLYGLOT MULTI-LANGUAGE AUTO-DETECTION (Node.js / JavaScript)
+--------------------------------------------------------------------------------
+Path: ./judge_samples/02_polyglot_js
+Description: A Node.js project using package.json and native `node --test` runner
+(zero npm install required) with a broken string reverse function.
+
+Terminal Command:
+    python agent.py --path ./judge_samples/02_polyglot_js
+
+What to Observe:
+- Auto-detects `package.json` in workspace and triggers `npm test` instead of pytest.
+- Ingests the failing assertion in index.test.js.
+- Patches index.js to properly reverse string.
+- Validates the fix using npm test and confirms zero regressions.
+
+Reset Scenario:
+    cd judge_samples/02_polyglot_js && git checkout -- . && cd ../..
+
+
+--------------------------------------------------------------------------------
+SCENARIO 3: MULTI-TURN REGRESSION TRAP & AUTOMATIC ROLLBACK
+--------------------------------------------------------------------------------
+Path: ./judge_samples/03_regression_trap
+Description: A pricing module where test_regular_price passes, but test_discount_price
+fails. A naive fix that alters fee calculation breaks regular pricing.
+
+Terminal Command:
+    python agent.py --path ./judge_samples/03_regression_trap
+
+What to Observe:
+- Agent records baseline snapshot (1 test passing, 1 failing).
+- If an initial fix causes test_regular_price to fail, PatchPilot instantly catches
+  the regression:
+  "🚨 [REGRESSION GUARDRAIL TRIGGERED] Regression detected: previously passing tests dropped..."
+- Executes an immediate `git checkout -- .` rollback.
+- Prompts Gemini to abandon that approach and generate an alternative fix.
+- Reaches final verified state without regressing previously passing tests.
+
+Reset Scenario:
+    cd judge_samples/03_regression_trap && git checkout -- . && cd ../..
+
+
+--------------------------------------------------------------------------------
+SCENARIO 4: HUMAN-IN-THE-LOOP ESCALATION & SECURITY GATEWAY
+--------------------------------------------------------------------------------
+Path: ./judge_samples/04_hitl_escalation
+Description: An authentication module with protected configuration files (.env).
+Designed to test escalation triggers and manual sign-off.
+
+Terminal Command:
+    python agent.py --path ./judge_samples/04_hitl_escalation
+
+What to Observe:
+- When the agent fails tests 2 consecutive times OR attempts to touch protected
+  settings (.env / auth token files), it triggers Human Escalation:
+  "⚠️ [PHASE 4: HUMAN SIGN-OFF REQUIRED] Escalation Triggered..."
+- The agent enters `AWAITING_APPROVAL` state and writes `APPROVAL_REQUIRED.lock`.
+- Switch to the Streamlit Dashboard (http://localhost:8501):
+  - Notice the prominent warning banner showing the candidate diff and reason.
+  - Click "✅ Approve Patch & Continue" to allow the agent to proceed.
+  - Or click "❌ Reject & Halt" to roll back changes and halt the agent safely.
+
+Reset Scenario:
+    cd judge_samples/04_hitl_escalation && git checkout -- . && cd ../..
+
+
+--------------------------------------------------------------------------------
+SUMMARY OF KEY GUARDRAILS TO EVALUATE
+--------------------------------------------------------------------------------
+1. Executive Audit Report: Review `EXECUTION_REPORT.md` generated after every run.
+2. Structured Telemetry: Inspect `audit_trail.jsonl` for timestamped audit logs.
+3. Automated Security Review: Pre-write inspection blocks hardcoded secrets and eval().
+4. Path Traversal Protection: Prevents writing outside the specified project workspace.
+5. Circuit Breaker: Limits total regression retry loops to 3 attempts.
+6. Emergency Kill Switch: Instant halting via red dashboard button or `STOP.lock`.
+================================================================================

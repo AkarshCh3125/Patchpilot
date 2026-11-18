@@ -1,0 +1,6 @@
+google-genai
+pydantic
+streamlit
+gitpython
+pytest
+python-dotenv
